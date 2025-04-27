@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlay Name on Image with Download</title>
+    <!-- Import Shantell Sans from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            text-align: center;
+        }
+        .image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .overlay-text {
+            position: absolute;
+            top: 15px;
+            left: 55%;
+            transform: translateX(-50%);
+            font-family: 'Shantell Sans', sans-serif;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+        #downloadBtn {
+            margin-bottom: 20px;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-family: 'Shantell Sans', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: #FFD700;
+            color: #4B0082;
+            border: 3px solid #800080;
+            border-radius: 15px;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, background-color 0.3s ease;
+        }
+        #downloadBtn:hover {
+            background-color: #FFEC8B;
+            transform: scale(1.05);
+        }
+        #downloadBtn:active {
+            transform: scale(0.95);
+        }
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button id="downloadBtn">Download Image</button>
+    <div class="container">
+        <img id="userImage" class="image" src="/chogu.png" alt="User Image">
+        <div id="overlayText" class="overlay-text"></div>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Prompt user for the name and font size
+        const name = prompt("Please enter the name to display on the image:");
+        const fontSize = prompt("Please enter the font size in pixels (e.g., 40):");
+
+        // Get elements
+        const overlayText = document.getElementById('overlayText');
+        const userImage = document.getElementById('userImage');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // Set the crossOrigin attribute to handle external images
+        // userImage.crossOrigin = "Anonymous";
+
+        // Set the name and font size
+        let fontSizeValue = fontSize ? parseInt(fontSize) : 40;
+        if (name && fontSize) {
+            overlayText.textContent = name;
+            overlayText.style.fontSize = `${fontSizeValue}px`;
+        } else {
+            overlayText.textContent = "No name or font size provided";
+            overlayText.style.fontSize = "40px";
+        }
+
+        // Function to draw on the canvas
+        function drawCanvas() {
+            // Set canvas dimensions to match the image
+            canvas.width = userImage.naturalWidth;
+            canvas.height = userImage.naturalHeight;
+
+            // Draw the image on the canvas
+            ctx.drawImage(userImage, 0, 0);
+
+            // Draw the text on the canvas
+            ctx.font = `700 ${fontSizeValue}px 'Shantell Sans'`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.shadowBlur = 4;
+
+            // Calculate the position to match the CSS, with offset to fix upward shift
+            const textX = canvas.width * 0.55;
+            const textY = 25; // Adjusted to align with on-screen position
+            ctx.fillText(name || "No name provided", textX, textY);
+        }
+
+        // Wait for the image to load
+        userImage.onload = function() {
+            drawCanvas();
+        };
+
+        // Handle image loading errors (e.g., cross-origin issues)
+        userImage.onerror = function() {
+            console.error("Error loading image. Please ensure the image URL is correct and supports cross-origin access.");
+            alert("Failed to load the image. Please use a local image or ensure the image URL supports cross-origin access.");
+        };
+
+        // Trigger the onload event if the image is already cached
+        if (userImage.complete) {
+            userImage.onload();
+        }
+
+        // Download the canvas as an image
+        downloadBtn.addEventListener('click', function() {
+            try {
+                // Redraw the canvas to ensure it's up-to-date
+                drawCanvas();
+
+                // Create a download link
+                const link = document.createElement('a');
+                link.download = 'overlayed-image.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error("Error generating download:", error);
+                alert("Failed to download the image. This may be due to cross-origin restrictions. Try using a local image.");
+            }
+        });
+    </script>
+</body>
+</html>

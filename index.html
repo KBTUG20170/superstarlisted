@@ -66,7 +66,7 @@
 <body>
     <button id="downloadBtn">Download Image</button>
     <div class="container">
-        <img id="userImage" class="image" src="chogu.png" alt="User Image">
+        <img id="userImage" class="image" src="/chogu.png" alt="User Image">
         <div id="overlayText" class="overlay-text"></div>
     </div>
     <canvas id="canvas"></canvas>
@@ -84,7 +84,7 @@
         const downloadBtn = document.getElementById('downloadBtn');
 
         // Set the crossOrigin attribute to handle external images
-        userImage.crossOrigin = "Anonymous";
+        // userImage.crossOrigin = "Anonymous";
 
         // Set the name and font size
         let fontSizeValue = fontSize ? parseInt(fontSize) : 40;
